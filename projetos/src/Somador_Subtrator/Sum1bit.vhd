@@ -10,9 +10,10 @@ entity Sum1bit is -- Entidade do somador/subtrator de 1 bit
  S, Cout : out STD_LOGIC -- Saída de 1 bit
     );
 end Sum1bit;
-
-architecture Dataflow of Sum1bit is -- Arquitetura de fluxo de dados do somador/subtrator de 1 bit
+-- Arquitetura de fluxo de dados do somador/subtrator de 1 bit
+architecture Dataflow of Sum1bit is 
 begin
     S    <= A xor B xor Cin; -- Soma dos bits A, B e Cin
     Cout <= ((A XOR B) AND Cin) OR (A AND B); -- Carry-out da soma
 end Dataflow;
+

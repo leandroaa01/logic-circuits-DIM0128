@@ -8,7 +8,7 @@ Entity Demux04 is  -- Demultiplexor 1 para 4 bits
    
 	Port(
         E, SEL : IN STD_LOGIC_VECTOR( 0 TO 1); -- Entrada de 2 bits
-        A, B, C, D : OUT STD_LOGIC_VECTOR( 0 TO 1) -- Saídas de 2 bits
+        A, B, C, D : OUT STD_LOGIC_VECTOR( 0 TO 1); -- Saídas de 2 bits
         LED : OUT STD_LOGIC_VECTOR( 0 TO 3) -- LED de saída de 4 bits
 
 	    );
@@ -28,11 +28,16 @@ begin
             when "01"   => B <= E; -- Saída B ativa quando SEL = "01"
             when "10"   => C <= E; -- Saída C ativa quando SEL = "10"
             when "11"   => D <= E; -- Saída D ativa quando SEL = "11"
-            when "00" => LED <= "1000"; -- LED acende de acordo com a seleção
-            when "01" => LED <= "0100"; -- LED acende de acordo com a seleção
-            when "10" => LED <= "0010"; -- LED acende de acordo com a seleção
-            when "11" => LED <= "0001"; -- LED acende de acordo com a seleção
             when others => NULL; 
+        end case;
+		  
+		  -- Controle do LED
+        case SEL is
+            when "00" => LED <= "1000"; -- LED 1 acende quando SEL = "00"
+            when "01" => LED <= "0100"; -- LED 2 acende quando SEL = "01"
+            when "10" => LED <= "0010"; -- LED 3 acende quando SEL = "10"
+            when "11" => LED <= "0001"; -- LED 4 acende quando SEL = "11"
+            when others => NULL;
         end case;
     end process;
     
