@@ -11,7 +11,8 @@ entity media_aritmetica is
         entrada_Y      : in  STD_LOGIC_VECTOR(15 downto 0);  -- Valor Y de entrada via chaves
         led_resultado  : out STD_LOGIC  ;         -- LED que indica resultado pronto
 		  s_reset        : out STD_LOGIC  ;         -- LED reset
-		  saida_Y        : out  STD_LOGIC_VECTOR(15 downto 0) 
+		  s_ok       : out STD_LOGIC  ;         -- LED ok
+		  saida        : out  STD_LOGIC_VECTOR(15 downto 0) 
     );
 end media_aritmetica;
 
@@ -42,7 +43,7 @@ begin
        
             
         if (clk'event and clk = '1') then
-		  saida_Y <= VALOR_X; -- MOSTRAR O VALOR DE X
+		  saida <= VALOR_X; -- MOSTRAR O VALOR DE X
 		  s_reset <= '0';
 		  led_resultado <= '0';  -- LED apagado
             -- Lógica de transição de estados
@@ -65,11 +66,13 @@ begin
 						   estado <= REINICIAR;
                      elsif (ok ='1') then
                         registro_Y <= entrada_Y;
-								saida_Y <= entrada_Y;
+								saida <= entrada_Y;
                         estado <= CALCULAR_MEDIA;  -- Avança para cálculo
+								s_ok <= ok;
 							else
 							estado <= LER_ENTRADA;  -- fica no mesmo estado
-							saida_Y <= (others => '0');
+							saida <= (others => '0');
+							s_ok <= '0';
                     end if;
 						  
                 when CALCULAR_MEDIA =>
@@ -82,7 +85,7 @@ begin
                 when EXIBIR_RESULTADO =>
                     -- Estado final: resultado pronto
                     led_resultado <= '1';  -- Acende LED indicador
-                    saida_Y <= registro_media;  
+                    saida <= registro_media;  
 						  estado <= LER_ENTRADA;  --volta para o inico
             end case;
         end if;
