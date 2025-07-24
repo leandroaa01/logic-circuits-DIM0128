@@ -39,28 +39,31 @@ begin
     -- Processo principal: Máquina de estados finitas (FSM)
     process(clk, reset)
     begin
-        if reset = '1' then
-            -- Reset do sistema
-            estado <= REINICIAR;
-            registro_Y <= (others => '0');
-            registro_media <= (others => '0');
-            led_resultado <= '0';  -- LED apagado
-				saida_Y <= VALOR_X;
-				s_reset <= reset;
+       
             
-        elsif (clk'event and clk = '1') then
+        if (clk'event and clk = '1') then
+		  saida_Y <= VALOR_X; -- MOSTRAR O VALOR DE X
 		  s_reset <= '0';
 		  led_resultado <= '0';  -- LED apagado
             -- Lógica de transição de estados
             case estado is
                 when REINICIAR =>
-                    -- Estado inicial após reset
-						  saida_Y <= VALOR_X;
-						  registro_media <= (others => '0');
-                    estado <= LER_ENTRADA;  -- Transição para próximo estado
+                    if reset = '1' then
+                     -- Reset do sistema
+                       estado <= REINICIAR;
+                      registro_Y <= (others => '0');
+                      registro_media <= (others => '0');
+                      led_resultado <= '0';  -- LED apagado
+				          s_reset <= reset;
+						    registro_media <= (others => '0');
+							 else
+                      estado <= LER_ENTRADA;  -- Transição para próximo estado
+							 end if;
                     
                 when LER_ENTRADA =>
-                     if (ok ='1') then
+					   if (reset ='1') then
+						   estado <= REINICIAR;
+                     elsif (ok ='1') then
                         registro_Y <= entrada_Y;
 								saida_Y <= entrada_Y;
                         estado <= CALCULAR_MEDIA;  -- Avança para cálculo
@@ -80,7 +83,7 @@ begin
                     -- Estado final: resultado pronto
                     led_resultado <= '1';  -- Acende LED indicador
                     saida_Y <= registro_media;  
-						  estado <= REINICIAR; 
+						  estado <= LER_ENTRADA;  --volta para o inico
             end case;
         end if;
     end process;
