@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
--- Entidade principal do sistema de média aritmética
+-- Entidade principal do sistema de mï¿½dia aritmï¿½tica
 entity media_aritmetica is
     Port (
         clk            : in  STD_LOGIC;         -- Sinal de clock do sistema
@@ -12,19 +12,20 @@ entity media_aritmetica is
         led_resultado  : out STD_LOGIC  ;         -- LED que indica resultado pronto
 		  s_reset        : out STD_LOGIC  ;         -- LED reset
 		  s_ok       : out STD_LOGIC  ;         -- LED ok
-		  saida        : out  STD_LOGIC_VECTOR(15 downto 0) 
+		  saida        : out  STD_LOGIC_VECTOR(15 downto 0);
+          s_maquina :  out std_logic_vector(1 DOWNTO 0) -- Estado atual da FSM (2 bits)
     );
 end media_aritmetica;
 
 architecture comportamental of media_aritmetica is
-    -- Constante X: valor fixo para o cálculo )
+    -- Constante X: valor fixo para o cï¿½lculo )
     constant VALOR_X : std_logic_vector(15 downto 0) := "0010011011010111"; --9943
     
-    -- Definição dos estados da máquina de estados finitas (FSM)
+    -- Definiï¿½ï¿½o dos estados da mï¿½quina de estados finitas (FSM)
     type tipo_estado is (
         REINICIAR,        -- Estado inicial/reset
         LER_ENTRADA,      -- Estado de leitura do valor Y
-        CALCULAR_MEDIA,   -- Estado de cálculo da média
+        CALCULAR_MEDIA,   -- Estado de cï¿½lculo da mï¿½dia
         EXIBIR_RESULTADO  -- Estado final (resultado pronto)
     );
     
@@ -37,7 +38,7 @@ architecture comportamental of media_aritmetica is
 begin
  
 
-    -- Processo principal: Máquina de estados finitas (FSM)
+    -- Processo principal: Mï¿½quina de estados finitas (FSM)
     process(clk, reset)
     begin
        
@@ -46,9 +47,10 @@ begin
 		  saida <= VALOR_X; -- MOSTRAR O VALOR DE X
 		  s_reset <= '0';
 		  led_resultado <= '0';  -- LED apagado
-            -- Lógica de transição de estados
+            -- Lï¿½gica de transiï¿½ï¿½o de estados
             case estado is
                 when REINICIAR =>
+                s_maquina <= "00";
                     if reset = '1' then
                      -- Reset do sistema
                        estado <= REINICIAR;
@@ -58,16 +60,17 @@ begin
 				          s_reset <= reset;
 						    registro_media <= (others => '0');
 							 else
-                      estado <= LER_ENTRADA;  -- Transição para próximo estado
+                      estado <= LER_ENTRADA;  -- Transiï¿½ï¿½o para prï¿½ximo estado
 							 end if;
                     
                 when LER_ENTRADA =>
+                s_maquina <= "01";
 					   if (reset ='1') then
 						   estado <= REINICIAR;
                      elsif (ok ='1') then
                         registro_Y <= entrada_Y;
 								saida <= entrada_Y;
-                        estado <= CALCULAR_MEDIA;  -- Avança para cálculo
+                        estado <= CALCULAR_MEDIA;  -- Avanï¿½a para cï¿½lculo
 								s_ok <= ok;
 							else
 							estado <= LER_ENTRADA;  -- fica no mesmo estado
@@ -76,13 +79,15 @@ begin
                     end if;
 						  
                 when CALCULAR_MEDIA =>
-                    -- Estado de cálculo da média
-                    -- Média = (X + Y)/2 (implementado com deslocamento)
+                s_maquina <= "10";
+                    -- Estado de cï¿½lculo da mï¿½dia
+                    -- Mï¿½dia = (X + Y)/2 (implementado com deslocamento)
                     registro_media <= std_logic_vector(
                         shift_right(unsigned(VALOR_X) + unsigned(registro_Y), 1));
-                    estado <= EXIBIR_RESULTADO;  -- Avança para estado final
+                    estado <= EXIBIR_RESULTADO;  -- Avanï¿½a para estado final
                     
                 when EXIBIR_RESULTADO =>
+                s_maquina <= "11";
                     -- Estado final: resultado pronto
                     led_resultado <= '1';  -- Acende LED indicador
                     saida <= registro_media;  
